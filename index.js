@@ -4,18 +4,35 @@ var photos = [];
 var _id = 0;
 
 const typeDefs = `
+enum PhotoCategory {
+  SELFIE
+  PORTRAIT
+  ACTION
+  LANDSCAPE
+  GRAPHIC
+}
+
 type Photo {
   id: ID!
   url: String!
   name: String!
   description: String
+  category: PhotoCategory!
 }
+
 type Query {
   totalPhotos: Int!
   allPhotos: [Photo!]!
 }
+
+input PostPhotoInput {
+  name: String!
+  category: PhotoCategory=PORTRAIT
+  description: String
+}
+
 type Mutation {
-  postPhoto(name: String! description: String): Photo!
+  postPhoto(input: PostPhotoInput!): Photo!
 }
 `;
 
@@ -32,12 +49,16 @@ const resolvers = {
     postPhoto(parent, args) {
       var newPhoto = {
         id: _id++,
-        ...args
+        ...args.input
       };
       photos.push(newPhoto);
 
       return newPhoto;
     }
+  },
+
+  Photo: {
+    url: parent => `http://yoursite.com/img/${parent.id}.jpg`
   }
 };
 
